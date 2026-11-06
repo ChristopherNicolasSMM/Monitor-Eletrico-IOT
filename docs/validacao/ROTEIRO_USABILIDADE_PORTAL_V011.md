@@ -11,13 +11,13 @@ Validar navegabilidade do portal técnico, coerência dos indicadores, importaç
 
 ## Preparação (Windows)
 
-1. Instalar Python 3.11.x com Python Launcher (`py -3.11 --version`).
+1. Instalar Python 3.13.x com Python Launcher (`py -3.13 --version`).
 2. Clonar branch do PR e entrar na pasta do projeto.
 3. Executar `& .\Start-Portal.ps1` na raiz do repositório. O script cria a `.venv`, instala dependências e abre o serviço em loopback. Se a política de execução bloquear scripts, use uma autorização limitada à sessão do PowerShell e repita o comando.
 4. Abrir `http://127.0.0.1:8080` no navegador. Conferir que o modo indica **Portal Técnico**.
 5. Manter o console aberto para verificar erros e finalizar com Ctrl+C.
 
-**Linux:** `bash start-portal.sh` com Python 3.11 disponível.
+**Linux:** `bash start-portal.sh` com Python 3.13 disponível.
 
 ## Casos de teste funcionais
 
@@ -77,4 +77,4 @@ O PZEM-004T V3.0 possui restrições de faixa e atualização; a camada atual de
 
 ## Automação
 
-Workflow `.github/workflows/portal-tests.yml`: matriz Windows/Linux, Python 3.11, testes unitários, HTTP, geração de logs e smoke test. **Estado verificado em 2026-11-06:** execuções retornaram falha sem etapas reportadas nem runner atribuído; a causa da infraestrutura precisa ser verificada no painel do GitHub, não há evidência de execução dos testes. Não anunciar CI verde.
+Workflow `.github/workflows/portal-tests.yml`: matriz Windows/Linux, Python 3.13, testes unitários, HTTP, geração de logs e smoke test. **Estado verificado em 2026-11-06:** execuções retornaram falha sem etapas reportadas nem runner atribuído; a causa da infraestrutura precisa ser verificada no painel do GitHub, não há evidência de execução dos testes. Não anunciar CI verde.
