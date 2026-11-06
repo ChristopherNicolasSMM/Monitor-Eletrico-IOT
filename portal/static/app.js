@@ -7,6 +7,61 @@ const fmt = (value, unit = "") => value == null ? "N/D" :
   Number(value).toLocaleString("pt-BR",{maximumFractionDigits:2}) + unit;
 
 let currentId = null, currentAnalysis = null, allEvents = [];
+
+// Preferência local, sem armazenamento no servidor; "system" acompanha o SO.
+const THEME_KEY = "monitor-theme";
+const themeQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+let themePreference = "system";
+try {
+  const saved = localStorage.getItem(THEME_KEY);
+  if (["light","dark","system"].includes(saved)) themePreference = saved;
+} catch (_) { /* Navegação privada pode bloquear armazenamento. */ }
+function effectiveTheme() {
+  return themePreference === "system" ? (themeQuery?.matches ? "dark" : "light") : themePreference;
+}
+function chartPalette() {
+  const css = getComputedStyle(document.documentElement);
+  const get = name => css.getPropertyValue(name).trim();
+  return {bg:get("--plot-bg"),grid:get("--plot-grid"),text:get("--plot-text"),
+          voltage:get("--plot-voltage"),low:get("--plot-low"),high:get("--plot-high")};
+}
+function applyTheme(persist = false) {
+  const selected = effectiveTheme();
+  document.documentElement.dataset.theme = selected;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content",
+    getComputedStyle(document.documentElement).getPropertyValue("--page").trim());
+  document.querySelectorAll("[data-theme-choice]").forEach(button => {
+    button.setAttribute("aria-pressed",String(button.dataset.themeChoice === themePreference));
+  });
+  if (persist) {
+    try { localStorage.setItem(THEME_KEY, themePreference); } catch (_) { /* Continue sem persistência. */ }
+  }
+  if (currentAnalysis && typeof Plotly !== "undefined") {
+    const p=chartPalette();
+    Plotly.relayout("voltage-chart",{
+      paper_bgcolor:p.bg,plot_bgcolor:p.bg,"font.color":p.text,
+      "xaxis.gridcolor":p.grid,"xaxis.linecolor":p.grid,
+      "xaxis.zerolinecolor":p.grid,"yaxis.gridcolor":p.grid,
+      "yaxis.linecolor":p.grid,"yaxis.zerolinecolor":p.grid,
+      "legend.bgcolor":p.bg
+    }).catch(()=>{});
+    Plotly.restyle("voltage-chart",{"line.color":[p.voltage,p.low,p.high]},[0,1,2]).catch(()=>{});
+  }
+}
+document.querySelectorAll("[data-theme-choice]").forEach(button => {
+  button.addEventListener("click",() => {
+    themePreference=button.dataset.themeChoice;
+    applyTheme(true);
+  });
+});
+if (themeQuery) {
+  const systemChange = () => { if (themePreference === "system") applyTheme(false); };
+  if (typeof themeQuery.addEventListener === "function") themeQuery.addEventListener("change",systemChange);
+  else if (typeof themeQuery.addListener === "function") themeQuery.addListener(systemChange);
+}
+applyTheme(false);
+
+
 function card(title, value) {
   return '<article class="card"><small>'+esc(title)+'</small><strong>'+esc(value)+'</strong></article>';
 }
@@ -63,23 +118,24 @@ function drawGraph(analysis){
     }
     timePoints.push(data[i].timestamp);voltagePoints.push(data[i].v);
   }
+  const palette = chartPalette();
   const traces=[{
     x:timePoints,y:voltagePoints,name:"Tensão RMS",
     type:"scatter",mode:"lines",connectgaps:false,
-    line:{color:"#1c9a94",width:2}
+    line:{color:palette.voltage,width:2}
   },{
     x:[first,last],y:[analysis.lower_v,analysis.lower_v],name:"Limiar inferior",
-    type:"scatter",mode:"lines",line:{color:"#f7b955",dash:"dash"}
+    type:"scatter",mode:"lines",line:{color:palette.low,dash:"dash"}
   },{
     x:[first,last],y:[analysis.upper_v,analysis.upper_v],name:"Limiar superior",
-    type:"scatter",mode:"lines",line:{color:"#d16f70",dash:"dash"}
+    type:"scatter",mode:"lines",line:{color:palette.high,dash:"dash"}
   }];
   Plotly.react("voltage-chart",traces,{
-    paper_bgcolor:"#ffffff",plot_bgcolor:"#ffffff",
+    paper_bgcolor:palette.bg,plot_bgcolor:palette.bg,font:{color:palette.text},
     margin:{l:55,r:22,t:20,b:55},
-    xaxis:{title:"Data/hora UTC",showgrid:true,gridcolor:"#edf3f6"},
+    xaxis:{title:"Data/hora UTC",showgrid:true,gridcolor:palette.grid},
     yaxis:{title:"Volts (V)",showgrid:true,gridcolor:"#edf3f6"},
-    legend:{orientation:"h",y:-0.25},hovermode:"x unified"
+    legend:{orientation:"h",y:-0.25,bgcolor:palette.bg},hovermode:"x unified"
   },{responsive:true,displaylogo:false,scrollZoom:true});
 }
 function render(payload){
