@@ -10,12 +10,17 @@ on:
 
 jobs:
   portal-tests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install portal and test dependencies
+        run: python -m pip install -r portal/requirements-dev.txt
       - name: Compile Python sources
         run: python -m compileall -q portal
       - name: Unit tests
@@ -23,17 +28,4 @@ jobs:
       - name: Generate synthetic data
         run: python -m portal.tools.generate_demo
       - name: Smoke import and analysis
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          from portal.core import parse_bytes,analyze
-          p=Path('portal/sample_data/demo_127v.log')
-          d=parse_bytes(p.read_bytes(),p.name)
-          a=analyze(d)
-          assert d['invalid_lines']==0,d['issues']
-          assert a['valid_voltage_count']>500
-          assert any(e['kind']=='REDE_AUSENTE' for e in a['events'])
-          assert any(e['kind']=='SUBTENSAO' for e in a['events'])
-          assert any(e['kind']=='SOBRETENSAO' for e in a['events'])
-          print('Smoke OK,',len(a['events']),'events')
-          PY
+        run: python -m portal.tools.smoke
