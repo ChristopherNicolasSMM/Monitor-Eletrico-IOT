@@ -1,0 +1,31 @@
+name: Portal MVP - tests
+
+on:
+  push:
+    branches: [feature/portal-tecnico-mvp]
+  pull_request:
+    paths:
+      - 'portal/**'
+      - '.github/workflows/portal-tests.yml'
+
+jobs:
+  portal-tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install portal and test dependencies
+        run: python -m pip install -r portal/requirements-dev.txt
+      - name: Compile Python sources
+        run: python -m compileall -q portal
+      - name: Unit tests
+        run: python -m unittest discover -s portal/tests -v
+      - name: Generate synthetic data
+        run: python -m portal.tools.generate_demo
+      - name: Smoke import and analysis
+        run: python -m portal.tools.smoke

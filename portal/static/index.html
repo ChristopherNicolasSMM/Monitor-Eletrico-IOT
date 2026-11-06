@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#F2F5F7" id="theme-color"/>
+  <script>(function(){try{var p=localStorage.getItem("monitor-theme");var m=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.dataset.theme=(p==="light"||p==="dark"?p:(m?"dark":"light"));}catch(e){document.documentElement.dataset.theme="light";}})();</script>
+  <title>Monitor Elétrico | Portal Técnico</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="/static/mark.svg" alt="" width="50" height="50"/>
+        <div><strong>MONITOR ELÉTRICO</strong><small>Portal Técnico · MVP</small></div>
+      </div>
+      <nav aria-label="Navegação">
+        <a href="#importacao">Importação</a>
+        <a href="#indicadores">Indicadores</a>
+        <a href="#graficos">Gráficos</a>
+        <a href="#ocorrencias">Ocorrências</a>
+        <a href="#auditoria">Auditoria</a>
+        <a href="#relatorios">Relatórios</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="theme-panel" role="group" aria-labelledby="theme-label">
+          <span class="theme-label" id="theme-label">Aparência</span>
+          <div class="theme-switch">
+            <button type="button" class="theme-choice" data-theme-choice="light" aria-pressed="false" title="Tema claro"><span aria-hidden="true">☀</span><span>Claro</span></button>
+            <button type="button" class="theme-choice" data-theme-choice="dark" aria-pressed="false" title="Tema escuro"><span aria-hidden="true">☾</span><span>Escuro</span></button>
+            <button type="button" class="theme-choice" data-theme-choice="system" aria-pressed="false" title="Seguir o sistema"><span aria-hidden="true">◉</span><span>Sistema</span></button>
+          </div>
+        </div>
+        <div class="foot">Offline · PZEM-004T<br/>Protótipo experimental v0.1</div>
+      </div>
+    </aside>
+    <main>
+      <header class="top"><div><small>MONITORAMENTO / ANÁLISE</small><h1>Portal de análise elétrica</h1><p>Registros locais, indicadores e evidências de ocorrências.</p></div><span class="chip">Modo técnico</span></header>
+      <section class="panel" id="importacao">
+        <div class="sectionhead"><h2>Importar medições</h2><span>Formato .log v1</span></div>
+        <form id="upload-form">
+          <label class="label" for="files">Arquivos do microSD</label>
+          <input id="files" name="files" type="file" accept=".log" multiple required/>
+          <label class="label" for="nominal">Tensão nominal (V)</label>
+          <input id="nominal" name="nominal" type="number" min="80" max="260" step="1" value="127" required/>
+          <button id="import-btn" type="submit">Importar e analisar</button>
+        </form>
+        <div class="demo-panel">
+          <div><strong>Explorar sem hardware</strong><p>Carregue uma campanha sintética para testar navegação, gráficos e relatórios. Não representa medições reais.</p></div>
+          <div class="demo-controls"><label class="label" for="demo-scenario">Cenário</label><select id="demo-scenario" aria-label="Escolha um cenário de demonstração"><option value="oscilacoes">Oscilações de tensão</option><option value="interrupcoes">Interrupções de energia</option><option value="normal">Rede estável</option></select><button id="load-demo" type="button">Abrir demonstração</button></div>
+        </div>
+        <p id="demo-warning" class="demo-warning" hidden>DEMONSTRAÇÃO: os registros e os eventos exibidos são fictícios.</p>
+        <p id="message" role="status" aria-live="polite">Selecione uma ou mais sessões para iniciar. Há um gerador de dados fictícios na pasta <code>portal/tools/</code>.</p>
+      </section>
+      <section id="indicadores">
+        <div class="sectionhead"><h2>Indicadores técnicos</h2><span id="source">Nenhuma sessão importada</span></div>
+        <div id="cards" class="cards"></div>
+      </section>
+      <section id="graficos" class="panel">
+        <div class="sectionhead"><h2>Tensão ao longo do tempo</h2><span>Valores RMS recebidos</span></div>
+        <div class="chart-controls"><button id="reset-zoom" type="button" class="subtle">Restaurar zoom</button><span>Clique em uma ocorrência para ampliar o período correspondente.</span></div>
+        <div id="voltage-chart" class="chart" aria-label="Gráfico temporal de tensão"></div>
+        <p class="note">Lacunas não são interpoladas. Os resultados não substituem analisador certificado de qualidade de energia.</p>
+      </section>
+      <section id="ocorrencias" class="panel">
+        <div class="sectionhead"><h2>Ocorrências</h2><span id="event-total">0 eventos</span></div>
+        <div class="event-controls"><label for="event-filter">Filtrar eventos</label><select id="event-filter"><option value="all">Todos os tipos</option></select></div>
+        <div class="tablewrap"><table><thead><tr><th>Tipo</th><th>Início (UTC)</th><th>Fim (UTC)</th><th>Linha</th><th>Detalhes</th></tr></thead><tbody id="events"><tr><td colspan="5">Sem dados.</td></tr></tbody></table></div>
+      </section>
+      <section id="auditoria" class="panel">
+        <div class="sectionhead"><h2>Integridade e registros</h2><span id="integrity">Aguardando importação</span></div>
+        <div id="issues"></div><div id="event-detail" class="event-detail" hidden></div>
+        <h3>Registros brutos interpretados (primeiros 100)</h3>
+        <div class="tablewrap"><table><thead><tr><th>Linha</th><th>Tipo</th><th>Sequência</th><th>Data UTC</th><th>Payload</th></tr></thead><tbody id="records"><tr><td colspan="5">Sem dados.</td></tr></tbody></table></div>
+      </section>
+      <section id="relatorios" class="panel">
+        <div class="sectionhead"><h2>Relatórios e exportações</h2><span>Dois perfis de PDF, um único painel técnico</span></div>
+        <div class="actions"><a id="pdf-tecnico" class="btn disabled" href="#">PDF técnico</a><a id="pdf-cliente" class="btn outline disabled" href="#">PDF cliente</a><a id="csv" class="btn outline disabled" href="#">Exportar CSV</a></div>
+        <p class="note">O relatório de cliente é simplificado somente no documento exportado. Não existe portal de cliente nesta versão.</p>
+      </section>
+    </main>
+  </div>
+  <script src="/api/vendor/plotly.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
