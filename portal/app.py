@@ -157,8 +157,11 @@ def export_csv(batch_id: str):
     writer.writerow(["timestamp_utc","device","session","seq","line","type","voltage_v","current_a","power_w","frequency_hz","power_factor"])
     for r in batch["import"]["records"]:
         writer.writerow([r["timestamp"],r["device"],r["session"],r["seq"],r["line"],r["type"],
-                         r["data"].get("v_rms",""),r["data"].get("i_rms",""),
-                         r["data"].get("p_w",""),r["data"].get("freq_hz",""),r["data"].get("pf","")])
+                         numeric(r,"v_rms") if r["type"] == "100" else None,
+                         numeric(r,"i_rms") if r["type"] == "100" and r["data"].get("ct_present") == "true" else None,
+                         numeric(r,"p_w") if r["type"] == "100" and r["data"].get("ct_present") == "true" else None,
+                         numeric(r,"freq_hz") if r["type"] == "100" else None,
+                         numeric(r,"pf") if r["type"] == "100" and r["data"].get("ct_present") == "true" else None])
     return Response(txt.getvalue(),media_type="text/csv; charset=utf-8",
                     headers={"Content-Disposition":'attachment; filename="medicoes.csv"'})
 
@@ -198,9 +201,11 @@ def pdf_bytes(batch: dict, view: str) -> bytes:
     elements.append(Spacer(1,14))
     if view == "tecnico":
         elements.extend([Paragraph("Rastreabilidade",styles["Heading2"]),
-                         Paragraph("SHA-256 da importação: "+source["sha256"],styles["Normal"]),
+                         Paragraph("Identificador agregado SHA-256: "+source["sha256"],styles["Normal"]),
                          Paragraph("Versão do algoritmo: portal 0.1.0 (experimental)",styles["Normal"]),
                          Paragraph(f"Limiares configurados: {analysis['lower_v']} a {analysis['upper_v']} V",styles["Normal"])])
+        for filename in batch.get("files", []):
+            elements.append(Paragraph(xml_escape("Arquivo: "+filename["name"]+" | SHA-256: "+filename["sha256"]),styles["BodyText"]))
         for issue in source["issues"][:30]:
             elements.append(Paragraph(xml_escape(f"Linha {issue['line']}: {issue['reason']}"),styles["BodyText"]))
     elements.append(Paragraph("Limitações e interpretação",styles["Heading2"]))
