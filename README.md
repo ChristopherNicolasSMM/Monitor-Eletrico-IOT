@@ -6,7 +6,7 @@
 <p align="center"><strong>Registrador portátil de comportamento elétrico e análise de ocorrências</strong></p>
 <p align="center">
   <img alt="Status: planejamento" src="https://img.shields.io/badge/status-planejamento-64748b">
-  <img alt="Documentação: v0.2" src="https://img.shields.io/badge/docs-v0.2-0f766e">
+  <img alt="Documentação: v0.3" src="https://img.shields.io/badge/docs-v0.3-0f766e">
   <img alt="Hardware: não validado" src="https://img.shields.io/badge/hardware-n%C3%A3o%20validado-b45309">
   <img alt="Operação: offline" src="https://img.shields.io/badge/opera%C3%A7%C3%A3o-offline-1d4ed8">
 </p>
@@ -52,7 +52,7 @@ O PZEM fornece tensão e frequência e, quando o transformador de corrente for i
 | Etapa | Situação |
 |---|---|
 | Definição de objetivo e componentes-base | Decidida conceitualmente |
-| Especificação de protocolo e portal | Em elaboração |
+| Especificação de protocolo e portal | Portal v0.3 especificado; protocolo pendente de congelamento |
 | Seleção exata de UPS, alimentação, gabinete e isolamento | Pendente |
 | Protótipo e validação elétrica | Não iniciado |
 | Firmware | Não iniciado |
@@ -75,7 +75,8 @@ O PZEM fornece tensão e frequência e, quando o transformador de corrente for i
 - [Requisitos e limites](docs/REQUISITOS.md)
 - [Hardware e lista de materiais](docs/HARDWARE.md)
 - [Protocolo de logs](docs/PROTOCOLO_LOG.md)
-- [Portal de análise](docs/PORTAL.md)
+- [Portal de análise: arquitetura, três motores e duas visões](docs/technical/portal/README.md)
+- [Portal: resumo e decisões](docs/PORTAL.md)
 - [Decisões arquiteturais e pendências](docs/DECISOES.md)
 - [Skill reutilizável de documentação](.github/skills/documentacao-profissional/SKILL.md)
 - [Padrão editorial](docs/PADRAO_DOCUMENTACAO.md)
