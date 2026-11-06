@@ -1,55 +1,41 @@
-# Portal de análise offline (proposta v0.1)
+# Portal de análise offline — índice funcional v0.3
 
-## Decisão de tecnologia
+**Estado:** especificação funcional documentada; portal ainda não implementado. Atualizado em 2026-11-06.
 
-**Python + FastAPI** como backend local; Pandas/NumPy para análise; Plotly.js para gráficos navegáveis; interface HTML/CSS/JavaScript; exportação PDF por motor de HTML→PDF a selecionar. Uma aplicação Node.js também seria viável, mas Python favorece a análise de séries temporais e geração de relatórios.
+O portal foi detalhado em **três subsistemas** e **dois níveis de apresentação**. O conteúdo técnico canônico está concentrado em:
 
-O portal roda em `127.0.0.1` por padrão e deve funcionar sem internet. Sem autenticação, não liberar operações administrativas na rede local. CORS/origem, upload, caminhos de arquivos e tamanho máximo precisam de proteção.
+1. [Importação e validação de arquivos](technical/portal/01-importacao-validacao.md)
+2. [Motor de análise elétrica](technical/portal/02-motor-analise.md)
+3. [Interface e relatórios](technical/portal/03-interface-relatorios.md)
+4. [Casos de uso UC-002 a UC-007](technical/portal/04-casos-de-uso.md)
+5. [Testes de aceite e gates](technical/portal/05-testes-aceite.md)
+6. [Índice e regras transversais](technical/portal/README.md)
+
+## Decisões
+
+- Backend em **Python + FastAPI**; cálculo em Pandas/NumPy; gráficos Plotly; frontend responsivo HTML/CSS/JavaScript.
+- Processamento offline e preservação dos arquivos originais com SHA-256.
+- Análises versionadas por hash, parâmetros, versão do algoritmo e referências de registros.
+- Modo **Cliente** e modo **Técnico**, com mesma fonte matemática e níveis distintos de detalhamento.
+- Relatório executivo e relatório técnico exportados em PDF, além de CSV/JSON com metadados.
+- Erros de sensor, lacunas de medição e falhas do RTC não podem ser convertidos em leituras válidas ou eventos comprovados.
+- Empacotamento portátil Windows/Linux planejado, ainda não realizado.
 
 ## Fluxo principal
 
-1. Importar arquivos `.log` de uma sessão ou pasta copiada do microSD, por seleção no navegador.
-2. Validar versão do esquema, códigos, timestamps, sequências e CRC; aceitar recuperação parcial com avisos.
-3. Exibir resumo: período, tempo efetivamente coberto, lacunas, sessões, reinícios, erros e eventos.
-4. Construir gráficos (tensão ao longo do tempo; corrente/potência quando CT disponível; frequência; eventos e energia).
-5. Filtrar por equipamento, sessão, data/hora, tipo de evento, severidade e validade.
-6. Exportar relatório PDF e CSV derivado, mantendo original imutável.
-7. Permitir histórico local de importações sem banco obrigatório na primeira versão; índice SQLite opcional para evolução.
-
-## Telas
-
-- Início: importar medição, ver últimas análises, estado dos dados.
-- Importação: arrastar/selecionar arquivo, pré-validação, relatório de integridade.
-- Visão geral: KPIs, gráfico principal, período, duração e distribuição de eventos.
-- Detalhamento: zoom temporal, curva por grandeza, tabela de eventos e dados brutos.
-- Qualidade do dado: erros CRC, seq faltante, timestamp inválido, sensor indisponível, RTC não sincronizado.
-- Relatório: cliente/local (dados adicionados pelo técnico), medições, metodologia, limitações e hipóteses de causa.
-- Configurações: limites configuráveis e metadados de calibração, sem reescrever os logs.
-
-## Diagnóstico responsável
-
-Separar: **fatos observados**, **indicadores derivados**, **hipóteses** e **limitações**. Não diagnosticar origem na concessionária apenas por haver subtensão; a investigação depende do ponto de medição, instalações e cargas.
-
-## Estrutura futura de código (ainda não implementada)
-
-```text
-portal/
-  backend/
-    app/
-      main.py
-      parsers/
-      analysis/
-      reports/
-  frontend/
-  tests/
-  sample_data/
+```mermaid
+flowchart LR
+ A["microSD"] --> B["Ingestão e validação"]
+ B --> C["Dados canônicos"]
+ C --> D["Motor analítico"]
+ D --> E["Visão cliente"]
+ D --> F["Visão técnica"]
+ E --> G["PDF executivo"]
+ F --> H["PDF técnico e evidências"]
 ```
 
-## Ordem de implementação
+## Documentos relacionados
 
-1. Especificar e testar parser v1 com logs sintéticos e truncados.
-2. Importação local e validação de integridade.
-3. Gráficos de tensão, frequência e eventos.
-4. Suporte condicionado à medição de corrente e potência.
-5. Relatório HTML/PDF e exportações.
-6. Empacotamento para Windows e Linux.
+[Protocolo de logs](PROTOCOLO_LOG.md) · [Requisitos](REQUISITOS.md) · [Decisões](DECISOES.md) · [Backlog](../BACKLOG.md).
+
+**Nota:** qualquer referência a telas, endpoints, entidades ou PDFs neste documento representa intenção de projeto até que haja código e validação.
