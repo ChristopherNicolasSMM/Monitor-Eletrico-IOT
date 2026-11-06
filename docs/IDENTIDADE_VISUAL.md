@@ -1,22 +1,40 @@
-# Identidade visual e nome (briefing inicial)
+# Identidade visual aprovada
 
-**Estado:** nome definitivo e logotipo ainda **não aprovados**.
+**Aprovação:** 2026-11-06.  
+**Estado:** símbolo, estilo e paleta aprovados; **nome definitivo ainda em definição**.  
+**Nome exibido temporariamente:** Monitor Elétrico IoT.
 
-## Posicionamento
+## Conceito
 
-Produto de instrumentação e registro: confiabilidade, observabilidade, precisão na comunicação e independência de internet. Não associar a uma marca de concessionária nem sugerir certificação.
+Identidade de instrumentação: ícone escuro de cantos arredondados, forma de onda/registro verde-água e ponto âmbar de ocorrência. O estilo deve comunicar tecnologia, confiabilidade, rastreabilidade e análise, sem sugerir que o instrumento possui certificação não obtida.
 
-## Direção visual recomendada
+![Assinatura visual aprovada com nome provisório](../assets/brand/logo.svg)
 
-- Símbolo simples e reconhecível em 24×24 px, adequado a app, firmware, caixa e documentação.
-- Combinar graficamente uma forma de onda/traço de tensão e a ideia de memória/registro, sem excesso de raios ou clichês de tomada.
-- Tons sóbrios: azul-petróleo ou grafite, com acento âmbar para eventos; manter contraste em fundo claro e escuro.
-- Criar variantes horizontal, símbolo isolado, monocromática e SVG vetorial.
-- Nomenclatura provisória: **Monitor Elétrico IoT**; não produzir marca com nome definitivo até escolha.
-- Planejar ativos `assets/brand/logo.svg`, `assets/brand/mark.svg`, `docs/imgs/`, quando aprovados.
+## Paleta
 
-## Checklist de identidade futura
+| Função | Cor | Hex |
+|---|---|---|
+| Fundo grafite | Grafite | `#101E2C` |
+| Azul técnico | Azul-petróleo | `#1C3445` |
+| Traçado/telemetria | Verde-água | `#3DD8C5` |
+| Ocorrências/alertas | Âmbar | `#F7B955` |
+| Texto principal escuro | Branco frio | `#F4F8FB` |
+| Texto secundário | Cinza azulado | `#B7C9D4` |
 
-Nome e disponibilidade de uso; assinatura; logo e favicon; cores com códigos; tipografia e licença; áreas de proteção; uso em README, tela do portal, capa PDF e etiqueta do dispositivo.
+## Ativos
 
-O README atual usa uma assinatura textual provisória, não um logotipo falso.
+- [Assinatura SVG](../assets/brand/logo.svg) para README e capa de portal/relatório, com **nome provisório**.
+- [Símbolo SVG](../assets/brand/mark.svg) para favicon, etiqueta e UI, independente do nome.
+
+A arte implementa o conceito gráfico já aprovado. A geometria, tipografia e aplicações poderão ser refinadas tecnicamente sem alterar a linguagem visual escolhida; **não alterar a paleta ou redesenhar o conceito sem nova decisão**.
+
+## Aplicações
+
+- README: assinatura visual centralizada, sem exagero de badges ou texto repetido.
+- Portal: símbolo no menu, paleta funcional e acessível; âmbar reservado a alertas e eventos.
+- PDF: cabeçalho com assinatura, eventos com cores e legenda, gráficos legíveis em preto e branco.
+- Gabinete: símbolo vetorial adaptável a impressão monocromática.
+
+## Pendências deliberadas
+
+Nome e verificação de disponibilidade, tipografia licenciada, variantes monocromáticas e favicon final. Assim que o nome for escolhido, atualizar a parte textual de `logo.svg`, preservando o símbolo aprovado, e revisar títulos/documentos.
