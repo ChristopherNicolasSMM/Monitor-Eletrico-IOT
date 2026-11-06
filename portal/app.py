@@ -20,13 +20,15 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from plotly.offline import get_plotlyjs
 
 from portal.core import parse_bytes, analyze
+from portal.demo import demo_bytes, SCENARIOS
+from xml.sax.saxutils import escape as xml_escape
 
 HERE = Path(__file__).resolve().parent
 DATA_ROOT = Path(os.environ.get("MONITOR_DATA_DIR", str(Path.home() / ".monitor-eletrico-iot"))).resolve()
 RAW = DATA_ROOT / "raw"
 RAW.mkdir(parents=True, exist_ok=True)
 MAX_UPLOAD = 32 * 1024 * 1024
-app = FastAPI(title="Monitor Elétrico IoT", version="0.1.0")
+app = FastAPI(title="Monitor Elétrico IoT", version="0.1.1")
 app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
 _lock = RLock()
 _cache: dict[str, dict] = {}
@@ -57,7 +59,7 @@ def home():
 
 @app.get("/api/status")
 def status():
-    return {"version":"0.1.0","mode":"technical","offline":True,
+    return {"version":"0.1.1","mode":"technical","offline":True,
             "import_count":len(_cache),"temporary_analysis_cache":True}
 
 
@@ -65,6 +67,25 @@ def status():
 def plotly_js():
     return Response(content=get_plotlyjs(), media_type="application/javascript")
 
+
+
+@app.get("/api/demo/scenarios")
+def demo_scenarios():
+    return {"scenarios": SCENARIOS, "notice": "Dados inteiramente sintéticos."}
+
+@app.post("/api/demo")
+def load_demo(request: Request, scenario: str = "oscilacoes"):
+    validate_origin(request)
+    try:
+        data = demo_bytes(scenario)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    parsed = parse_bytes(data, "DEMONSTRACAO_" + scenario + ".log")
+    result = analyze(parsed, 127.0)
+    batch_id = uuid4().hex
+    with _lock:
+        _cache[batch_id] = {"import": parsed, "analysis": result, "nominal": 127.0, "demo": True, "files": [{"name": parsed["name"], "sha256": parsed["sha256"]}]}
+    return {"id": batch_id, "demo": True, "import": {k: v for k, v in parsed.items() if k != "records"}, "analysis": result}
 
 @app.post("/api/import")
 async def import_logs(request: Request, files: list[UploadFile] = File(...),
@@ -105,14 +126,14 @@ async def import_logs(request: Request, files: list[UploadFile] = File(...),
     with _lock:
         _cache[batch_id] = {"import":merged,"analysis":result,"nominal":nominal,
                             "files":[{"name":p["name"],"sha256":p["sha256"]} for p in unique.values()]}
-    return {"id":batch_id,"import":{k:v for k,v in merged.items() if k!="records"},"analysis":result}
+    return {"id":batch_id,"import":{k:v for k,v in merged.items() if k!="records"},"analysis":result,"demo":False}
 
 
 @app.get("/api/analysis/{batch_id}")
 def get_analysis(batch_id: str):
     batch = get_batch(batch_id)
     return {"id":batch_id,"import":{k:v for k,v in batch["import"].items() if k!="records"},
-            "analysis":batch["analysis"]}
+            "analysis":batch["analysis"],"demo":batch.get("demo",False)}
 
 
 @app.get("/api/records/{batch_id}")
@@ -153,7 +174,7 @@ def pdf_bytes(batch: dict, view: str) -> bytes:
     elements = [Paragraph(title,styles["Title"]),Spacer(1,12),
                 Paragraph("Monitor Elétrico IoT | Protótipo experimental | Dados não certificados",styles["Normal"]),Spacer(1,12),
                 Paragraph(f"Emissão UTC: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}",styles["Normal"]),
-                Paragraph(f"Arquivo(s): {source['name']}",styles["Normal"]),
+                Paragraph(f"Arquivo(s): {xml_escape(source['name'])}",styles["Normal"]),
                 Paragraph(f"Registros válidos: {source['valid_lines']} | Inválidos: {source['invalid_lines']} | Alertas: {len(source['issues'])}",styles["Normal"]),
                 Spacer(1,12)]
     v = analysis["voltage"]
@@ -168,8 +189,10 @@ def pdf_bytes(batch: dict, view: str) -> bytes:
                                ("TEXTCOLOR",(0,0),(-1,0),colors.white),
                                ("GRID",(0,0),(-1,-1),0.4,colors.lightgrey),("PADDING",(0,0),(-1,-1),7)]))
     elements.extend([table,Spacer(1,14),Paragraph("Ocorrências observadas",styles["Heading2"])])
+    if batch.get("demo"):
+        elements.insert(1, Paragraph("<b>DEMONSTRAÇÃO: DADOS FICTÍCIOS</b>", styles["Heading2"]))
     for ev in analysis["events"][:35]:
-        elements.append(Paragraph(f"{ev['kind']} | {ev['start']} | {ev.get('detail','')}",styles["BodyText"]))
+        elements.append(Paragraph(xml_escape(f"{ev['kind']} | {ev['start']} | {ev.get('detail','')}"),styles["BodyText"]))
     if len(analysis["events"])>35:
         elements.append(Paragraph("Demais ocorrências disponíveis no portal e na exportação.",styles["Normal"]))
     elements.append(Spacer(1,14))
@@ -179,10 +202,10 @@ def pdf_bytes(batch: dict, view: str) -> bytes:
                          Paragraph("Versão do algoritmo: portal 0.1.0 (experimental)",styles["Normal"]),
                          Paragraph(f"Limiares configurados: {analysis['lower_v']} a {analysis['upper_v']} V",styles["Normal"])])
         for issue in source["issues"][:30]:
-            elements.append(Paragraph(f"Linha {issue['line']}: {issue['reason']}",styles["BodyText"]))
+            elements.append(Paragraph(xml_escape(f"Linha {issue['line']}: {issue['reason']}"),styles["BodyText"]))
     elements.append(Paragraph("Limitações e interpretação",styles["Heading2"]))
     for limitation in analysis["limitations"]:
-        elements.append(Paragraph("• "+limitation,styles["BodyText"]))
+        elements.append(Paragraph(xml_escape("- "+limitation),styles["BodyText"]))
     elements.append(Spacer(1,8))
     elements.append(Paragraph("Este protótipo auxilia investigações, mas não comprova origem de falhas, conformidade regulatória ou ausência de transientes.",styles["BodyText"]))
     doc.build(elements)
