@@ -1,11 +1,11 @@
-"""Inicialização controlada do portal; Python 3.11 é obrigatório nesta fase."""
+"""Inicialização controlada do portal; Python 3.13 é obrigatório nesta fase."""
 import sys
 
 def main():
-    if sys.version_info[:2] != (3, 11):
+    if sys.version_info[:2] != (3, 13):
         print(
             f"Python incompatível: {sys.version.split()[0]}. "
-            "Utilize Python 3.11.x conforme .python-version e pyproject.toml.",
+            "Utilize Python 3.13.x conforme .python-version e pyproject.toml.",
             file=sys.stderr,
         )
         return 2
