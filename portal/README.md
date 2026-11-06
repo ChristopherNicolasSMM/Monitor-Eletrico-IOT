@@ -4,7 +4,7 @@
 
 ## Compatibilidade e execução
 
-A versão de Python está definida em **`.python-version` (`3.11`)** e **`pyproject.toml` (`>=3.11,<3.12`)**. O inicializador `portal/run.py` verifica o interpretador e informa quando não for compatível. Evite Python 3.12/3.13 nesta fase, mesmo que outras dependências funcionem.
+A versão de Python está definida em **`.python-version` (`3.13`)** e **`pyproject.toml` (`>=3.13,<3.14`)**. O inicializador `portal/run.py` verifica o interpretador e informa quando não for compatível. Evite Python 3.11/3.12 nesta fase, mesmo que outras dependências funcionem.
 
 Para iniciar diretamente, sem ativar o ambiente virtual, utilize na raiz:
 
@@ -12,7 +12,7 @@ Para iniciar diretamente, sem ativar o ambiente virtual, utilize na raiz:
 
 **Linux:** `bash start-portal.sh`.
 
-Os scripts preparam `.venv` com Python 3.11, instalam dependências e iniciam o serviço exclusivamente em `127.0.0.1:8080`. No Windows, o launcher `py -3.11` precisa estar disponível. Em ambos os sistemas, o instalador de pacotes precisa acessar o índice na primeira instalação; **a operação do portal depois disso é offline**.
+Os scripts preparam `.venv` com Python 3.13, instalam dependências e iniciam o serviço exclusivamente em `127.0.0.1:8080`. No Windows, o launcher `py -3.13` precisa estar disponível. Em ambos os sistemas, o instalador de pacotes precisa acessar o índice na primeira instalação; **a operação do portal depois disso é offline**.
 
 ## Testes de usabilidade sem hardware
 
@@ -36,11 +36,11 @@ Os cenários incorporados no portal são 100% sintéticos, têm horário histór
 - Relatórios PDF **executivo/cliente** e **técnico/profissional**; exportação CSV.
 - Três cenários sintéticos carregados com um clique; filtros de eventos, zoom, detalhe e amostras próximas.
 - Simulador determinístico, testes unitários do parser e da análise e testes HTTP de importação/exportação.
-- Inicialização facilitada via scripts PowerShell e Bash, com verificação de Python 3.11.
+- Inicialização facilitada via scripts PowerShell e Bash, com verificação de Python 3.13.
 
 ## Requisitos
 
-Python **3.11.x** (obrigatório para este MVP) e dependências em `portal/requirements.txt`.
+Python **3.13.x** (obrigatório para este MVP) e dependências em `portal/requirements.txt`.
 
 ### Windows PowerShell
 
