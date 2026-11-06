@@ -12,7 +12,7 @@ Transformar os registros de texto versionados do dispositivo ESP32-S3/PZEM-004T 
 2. [Motor de análise elétrica](02-motor-analise.md): estatísticas, eventos, cobertura, relações temporais e hipóteses.
 3. [Interface e relatórios](03-interface-relatorios.md): navegação, perfis, visualizações, relatórios e exportações.
 
-[Casos de uso do portal](04-casos-de-uso.md) · [Aceite e testes planejados](05-testes-aceite.md) · [Protocolo de origem](../../PROTOCOLO_LOG.md).
+[Temas claro/escuro e acessibilidade](06-temas-e-acessibilidade.md) · [Casos de uso do portal](04-casos-de-uso.md) · [Aceite e testes planejados](05-testes-aceite.md) · [Protocolo de origem](../../PROTOCOLO_LOG.md).
 
 ## Arquitetura lógica proposta
 
