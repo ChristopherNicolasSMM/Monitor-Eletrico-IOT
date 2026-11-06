@@ -11,7 +11,7 @@
   <img alt="Operação: offline" src="https://img.shields.io/badge/opera%C3%A7%C3%A3o-offline-1d4ed8">
 </p>
 
-> **Projeto em definição, sem firmware ou portal operacional.** O nome é provisório; a identidade visual foi aprovada em 2026-11-06. Este README documenta o escopo e as decisões, não uma instalação pronta.
+> **Projeto em definição; portal MVP experimental disponível nesta branch, firmware não implementado.** O nome é provisório; a identidade visual foi aprovada em 2026-11-06. Este README documenta o escopo e as decisões, não uma instalação pronta.
 
 ## O problema
 
@@ -56,8 +56,22 @@ O PZEM fornece tensão e frequência e, quando o transformador de corrente for i
 | Seleção exata de UPS, alimentação, gabinete e isolamento | Pendente |
 | Protótipo e validação elétrica | Não iniciado |
 | Firmware | Não iniciado |
-| Portal web e relatórios | Não iniciado |
+| Portal web e relatórios | MVP 0.1.1 na branch de desenvolvimento, validação manual pendente |
 | Capturas de tela e manual ilustrado | Dependentes de software real |
+
+## Experimentar o portal técnico (MVP experimental)
+
+**Python 3.11.x obrigatório**, definido em [`.python-version`](.python-version) e [`pyproject.toml`](pyproject.toml).
+
+No Windows, após clonar a branch `feature/portal-tecnico-mvp`, execute `& .\\Start-Portal.ps1`; no Linux, `bash start-portal.sh`. Abra `http://127.0.0.1:8080`. Os scripts preparam a instalação local e iniciam o serviço; a primeira instalação de dependências requer acesso ao índice de pacotes.
+
+O painel é **exclusivamente técnico**. As versões cliente e técnico existem apenas como **modelos PDF exportáveis**. Há três cenários sintéticos carregados sem hardware para explorar gráficos, eventos, filtros e auditoria.
+
+- [Manual de execução do MVP](portal/README.md)
+- [Roteiro de testes de usabilidade](docs/validacao/ROTEIRO_USABILIDADE_PORTAL_V011.md)
+- [PR #1 (revisão e testes)](https://github.com/ChristopherNicolasSMM/Monitor-Eletrico-IOT/pull/1)
+
+> A implementação está disponível para avaliação, mas **não há execução de testes automatizados confirmada**, nem validação elétrica ou metrológica.
 
 ## Navegação
 
@@ -99,7 +113,7 @@ O campo `PENDING` é apenas ilustração; a implementação deverá calcular a v
 
 ## Instalação e execução
 
-**Ainda não existe aplicação executável.** Instruções de clone e instalação de dependências serão publicadas quando houver código verificável. Não apresentaremos comandos fictícios como se o produto estivesse pronto.
+**Existe um MVP experimental do portal nesta branch, ainda sujeito a testes manuais e automatizados.** O firmware de aquisição e a validação de hardware não foram realizados.
 
 O portal futuro deve operar em Windows e Linux, sem conexão com a internet, podendo ser distribuído como aplicativo portátil.
 
