@@ -61,7 +61,7 @@ O PZEM fornece tensão e frequência e, quando o transformador de corrente for i
 
 ## Experimentar o portal técnico (MVP experimental)
 
-**Python 3.11.x obrigatório**, definido em [`.python-version`](.python-version) e [`pyproject.toml`](pyproject.toml).
+**Python 3.13.x obrigatório**, definido em [`.python-version`](.python-version) e [`pyproject.toml`](pyproject.toml).
 
 No Windows, após clonar a branch `feature/portal-tecnico-mvp`, execute `& .\\Start-Portal.ps1`; no Linux, `bash start-portal.sh`. Abra `http://127.0.0.1:8080`. Os scripts preparam a instalação local e iniciam o serviço; a primeira instalação de dependências requer acesso ao índice de pacotes.
 
