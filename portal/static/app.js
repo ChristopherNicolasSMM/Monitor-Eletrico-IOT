@@ -1,46 +1,148 @@
-const q = s => document.querySelector(s);
-const escapeHtml = x => String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
-let currentId = null;
-const fmt = (v,unit="") => v===null||v===undefined?"N/D":Number(v).toLocaleString("pt-BR",{maximumFractionDigits:2})+unit;
-function card(name,val){return '<div class="card"><small>'+escapeHtml(name)+'</small><strong>'+escapeHtml(val)+'</strong></div>'}
-function render(data){
- const x=data.analysis, imp=data.import;currentId=data.id;
- q("#source").textContent=imp.name;
- q("#integrity").textContent=imp.valid_lines+" válidas · "+imp.invalid_lines+" inválidas · "+imp.issues.length+" avisos";
- q("#cards").innerHTML=[
- card("Tensão mínima",fmt(x.voltage?.min," V")),
- card("Tensão máxima",fmt(x.voltage?.max," V")),
- card("Tensão média",fmt(x.voltage?.mean," V")),
- card("Eventos identificados",x.event_count),
- card("Amostras de tensão",x.valid_voltage_count),
- card("Linhas válidas",imp.valid_lines),
- card("Linhas inválidas",imp.invalid_lines),
- card("Frequência média",fmt(x.frequency?.mean," Hz"))
- ].join("");
- q("#event-total").textContent=x.event_count+" eventos";
- q("#events").innerHTML=x.events.length?x.events.map(e=>'<tr><td>'+escapeHtml(e.kind)+'</td><td>'+escapeHtml(e.start)+'</td><td>'+escapeHtml(e.end??"Indeterminado")+'</td><td>'+escapeHtml(e.line)+'</td><td>'+escapeHtml(e.detail)+'</td></tr>').join(""):'<tr><td colspan="5">Nenhum evento detectado nos dados disponíveis.</td></tr>';
- q("#issues").innerHTML=imp.issues.slice(0,100).map(i=>'<div class="issue">Linha '+escapeHtml(i.line)+': '+escapeHtml(i.reason)+'</div>').join("") || '<p>Nenhum aviso no parser.</p>';
- const plotted = x.samples.filter(s=>s.v!==null);
- if(plotted.length){
-   Plotly.newPlot("voltage-chart",[
-     {x:plotted.map(s=>s.timestamp),y:plotted.map(s=>s.v),mode:"lines+markers",name:"Tensão RMS",line:{color:"#3b9c9d"},connectgaps:false},
-     {x:[plotted[0].timestamp,plotted[plotted.length-1].timestamp],y:[x.lower_v,x.lower_v],mode:"lines",name:"Limiar inferior",line:{color:"#e9a844",dash:"dash"}},
-     {x:[plotted[0].timestamp,plotted[plotted.length-1].timestamp],y:[x.upper_v,x.upper_v],mode:"lines",name:"Limiar superior",line:{color:"#c26a55",dash:"dash"}}
-   ],{paper_bgcolor:"#fff",plot_bgcolor:"#fff",margin:{l:48,r:20,b:65,t:20},xaxis:{title:"UTC"},yaxis:{title:"Volts"},legend:{orientation:"h"}},{responsive:true,displaylogo:false});
- }else{q("#voltage-chart").textContent="Nenhuma medição de tensão válida disponível."}
- for (const [id,href] of [["pdf-tecnico",`/api/report/${currentId}/tecnico.pdf`],["pdf-cliente",`/api/report/${currentId}/cliente.pdf`],["csv",`/api/export/${currentId}/csv`]]){
-   q("#"+id).href=href;q("#"+id).classList.remove("disabled");
- }
- fetch("/api/records/"+currentId+"?limit=100").then(r=>r.json()).then(v=>{
-   q("#records").innerHTML=v.rows.map(r=>'<tr><td>'+r.line+'</td><td>'+escapeHtml(r.type)+'</td><td>'+r.seq+'</td><td>'+escapeHtml(r.timestamp)+'</td><td><code>'+escapeHtml(JSON.stringify(r.data))+'</code></td></tr>').join("");
- });
+"use strict";
+const el = id => document.getElementById(id);
+const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+const fmt = (value, unit = "") => value == null ? "N/D" :
+  Number(value).toLocaleString("pt-BR",{maximumFractionDigits:2}) + unit;
+
+let currentId = null, currentAnalysis = null, allEvents = [];
+function card(title, value) {
+  return '<article class="card"><small>'+esc(title)+'</small><strong>'+esc(value)+'</strong></article>';
 }
-q("#upload-form").addEventListener("submit",async e=>{
- e.preventDefault();const button=q("#import-btn");button.disabled=true;q("#message").textContent="Importando e validando...";
- try{
- const fd=new FormData(e.target);const resp=await fetch("/api/import",{method:"POST",body:fd});
- const payload=await resp.json();if(!resp.ok)throw new Error(JSON.stringify(payload.detail??payload));
- render(payload);q("#message").textContent="Importação concluída. Arquivos originais preservados e resultados disponíveis.";
- }catch(err){q("#message").textContent="Falha: "+err.message}
- finally{button.disabled=false}
+function showError(error) {
+  el("message").textContent="Não foi possível concluir: "+String(error.message || error);
+  el("message").classList.add("error");
+}
+function renderEvents() {
+  const filter=el("event-filter").value;
+  const filtered=allEvents.map((event,index)=>({event,index})).filter(({event})=>filter==="all"||event.kind===filter);
+  el("event-total").textContent=filtered.length+" de "+allEvents.length+" ocorrências";
+  el("events").innerHTML=filtered.length? filtered.map(({event,index}) =>
+    '<tr><td><button type="button" class="event-link" data-event="'+index+'">'+esc(event.kind)+'</button></td><td>'+
+    esc(event.start)+'</td><td>'+esc(event.end || "Indeterminado")+'</td><td>'+
+    esc(event.line)+'</td><td>'+esc(event.detail || "")+'</td></tr>'
+  ).join(""):'<tr><td colspan="5">Nenhuma ocorrência com o filtro selecionado.</td></tr>';
+}
+function inspectEvent(index) {
+  const event=allEvents[index];
+  if(!event)return;
+  const box=el("event-detail"); box.hidden=false;
+  const stamp=event.start;
+  const near=(currentAnalysis?.samples||[]).filter(s=>Math.abs(Date.parse(s.timestamp)-Date.parse(stamp))<=30000).slice(0,16);
+  box.innerHTML='<h3>Detalhe da ocorrência: '+esc(event.kind)+'</h3>'+
+    '<p><strong>Início:</strong> '+esc(event.start)+' | <strong>Fim:</strong> '+esc(event.end||"Não determinado")+
+    ' | <strong>Linha de origem:</strong> '+esc(event.line)+
+    ' | <strong>Sessão:</strong> '+esc(event.session)+'</p>'+
+    '<p>'+esc(event.detail||"")+'</p>'+
+    '<p><strong>Amostras próximas (janela de 30 segundos):</strong></p>'+
+    '<div class="tablewrap"><table><thead><tr><th>UTC</th><th>Tensão (V)</th><th>Arquivo/linha</th></tr></thead><tbody>'+
+    near.map(s=>'<tr><td>'+esc(s.timestamp)+'</td><td>'+esc(fmt(s.v))+'</td><td>'+esc(s.line)+'</td></tr>').join("")+
+    '</tbody></table></div><p class="note">A presença de um evento não determina sua causa. Consulte integridade e limites de aquisição.</p>';
+  const start = Date.parse(stamp);
+  const end = event.end ? Date.parse(event.end) : start;
+  if(Number.isFinite(start) && typeof Plotly !== "undefined")
+    Plotly.relayout("voltage-chart",{"xaxis.range":[new Date(start-30000).toISOString(),new Date(end+30000).toISOString()]})
+      .catch(()=>{});
+  box.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function drawGraph(analysis){
+  const data=analysis.samples || [];
+  if(!data.some(row=>row.v!==null)){
+    el("voltage-chart").textContent="Sem dados de tensão válidos para este período.";
+    return;
+  }
+  const first=data[0].timestamp,last=data[data.length-1].timestamp;
+  // Valores nulos mantidos para exibir lacunas observadas sem interpolar a interrupção.
+  const traces=[{
+    x:data.map(s=>s.timestamp),y:data.map(s=>s.v),name:"Tensão RMS",
+    type:"scatter",mode:"lines",connectgaps:false,
+    line:{color:"#1c9a94",width:2}
+  },{
+    x:[first,last],y:[analysis.lower_v,analysis.lower_v],name:"Limiar inferior",
+    type:"scatter",mode:"lines",line:{color:"#f7b955",dash:"dash"}
+  },{
+    x:[first,last],y:[analysis.upper_v,analysis.upper_v],name:"Limiar superior",
+    type:"scatter",mode:"lines",line:{color:"#d16f70",dash:"dash"}
+  }];
+  Plotly.react("voltage-chart",traces,{
+    paper_bgcolor:"#ffffff",plot_bgcolor:"#ffffff",
+    margin:{l:55,r:22,t:20,b:55},
+    xaxis:{title:"Data/hora UTC",showgrid:true,gridcolor:"#edf3f6"},
+    yaxis:{title:"Volts (V)",showgrid:true,gridcolor:"#edf3f6"},
+    legend:{orientation:"h",y:-0.25},hovermode:"x unified"
+  },{responsive:true,displaylogo:false,scrollZoom:true});
+}
+function render(payload){
+  const analysis=payload.analysis, imported=payload.import;
+  currentId=payload.id;currentAnalysis=analysis;allEvents=analysis.events||[];
+  el("source").textContent=imported.name;
+  el("demo-warning").hidden=!payload.demo;
+  el("integrity").textContent=imported.valid_lines+" válidas | "+
+    imported.invalid_lines+" inválidas | "+(imported.issues||[]).length+" alertas";
+  el("cards").innerHTML=[
+    card("Tensão mínima",fmt(analysis.voltage?.min," V")),
+    card("Tensão máxima",fmt(analysis.voltage?.max," V")),
+    card("Tensão média",fmt(analysis.voltage?.mean," V")),
+    card("Ocorrências",analysis.event_count),
+    card("Amostras válidas",analysis.valid_voltage_count),
+    card("Linhas importadas",imported.total_lines),
+    card("Linhas inválidas",imported.invalid_lines),
+    card("Frequência média",fmt(analysis.frequency?.mean," Hz"))
+  ].join("");
+  const kinds=[...new Set(allEvents.map(e=>e.kind))].sort();
+  el("event-filter").innerHTML='<option value="all">Todos os tipos</option>'+
+    kinds.map(kind=>'<option value="'+esc(kind)+'">'+esc(kind)+'</option>').join("");
+  el("event-detail").hidden=true;renderEvents();drawGraph(analysis);
+  el("issues").innerHTML=(imported.issues||[]).slice(0,100).map(i=>
+    '<div class="issue">Linha '+esc(i.line)+': '+esc(i.reason)+'</div>'
+  ).join("") || '<p>Não foram identificados avisos estruturais nesta importação.</p>';
+  for(const [id,url] of [
+    ["pdf-tecnico",'/api/report/'+currentId+'/tecnico.pdf'],
+    ["pdf-cliente",'/api/report/'+currentId+'/cliente.pdf'],
+    ["csv",'/api/export/'+currentId+'/csv']
+  ]){el(id).href=url;el(id).classList.remove("disabled");}
+  fetch('/api/records/'+currentId+'?limit=100')
+    .then(r=>{if(!r.ok)throw Error("Falha na leitura de registros");return r.json();})
+    .then(r=>{el("records").innerHTML=r.rows.map(row=>
+      '<tr><td>'+esc(row.line)+'</td><td>'+esc(row.type)+'</td><td>'+esc(row.seq)+'</td><td>'+
+      esc(row.timestamp)+'</td><td><code>'+esc(JSON.stringify(row.data))+'</code></td></tr>'
+    ).join("");})
+    .catch(error=>{el("records").textContent=error.message;});
+}
+el("upload-form").addEventListener("submit",async e=>{
+  e.preventDefault();const button=el("import-btn");
+  button.disabled=true;el("message").classList.remove("error");
+  el("message").textContent="Importando registros, validando integridade e calculando indicadores...";
+  try{
+    const response=await fetch("/api/import",{method:"POST",body:new FormData(e.currentTarget)});
+    const result=await response.json();
+    if(!response.ok)throw Error(typeof result.detail==="string"?result.detail:JSON.stringify(result.detail));
+    render(result);
+    el("message").textContent="Importação concluída. Arquivos originais preservados.";
+  }catch(error){showError(error);}
+  finally{button.disabled=false;}
+});
+el("load-demo").addEventListener("click",async ()=>{
+  const button=el("load-demo");button.disabled=true;el("message").classList.remove("error");
+  el("message").textContent="Carregando cenário fictício...";
+  try{
+    const scenario=encodeURIComponent(el("demo-scenario").value);
+    const response=await fetch("/api/demo?scenario="+scenario,{method:"POST"});
+    const result=await response.json();
+    if(!response.ok)throw Error(result.detail||"Falha na demonstração");
+    render(result);
+    el("message").textContent="Demonstração carregada. Todos os dados são sintéticos.";
+    el("indicadores").scrollIntoView({behavior:"smooth"});
+  }catch(error){showError(error);}
+  finally{button.disabled=false;}
+});
+el("event-filter").addEventListener("change",renderEvents);
+el("events").addEventListener("click",event=>{
+  const target=event.target.closest("[data-event]");
+  if(target)inspectEvent(Number(target.dataset.event));
+});
+el("reset-zoom").addEventListener("click",()=>{
+  if(currentAnalysis && typeof Plotly!=="undefined")
+    Plotly.relayout("voltage-chart",{"xaxis.autorange":true}).catch(()=>{});
 });
