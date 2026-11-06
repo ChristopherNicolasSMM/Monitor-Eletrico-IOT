@@ -1,6 +1,30 @@
-# Portal técnico | MVP 0.1
+# Portal técnico | MVP 0.1.1
 
 > **Implementação experimental** na branch `feature/portal-tecnico-mvp`. Não utilizar os resultados para laudo formal ou atribuição de responsabilidade elétrica. Portal **técnico apenas**; as duas versões (cliente e técnico) existem exclusivamente na exportação PDF.
+
+## Compatibilidade e execução
+
+A versão de Python está definida em **`.python-version` (`3.11`)** e **`pyproject.toml` (`>=3.11,<3.12`)**. O inicializador `portal/run.py` verifica o interpretador e informa quando não for compatível. Evite Python 3.12/3.13 nesta fase, mesmo que outras dependências funcionem.
+
+Para iniciar diretamente, sem ativar o ambiente virtual, utilize na raiz:
+
+**Windows PowerShell:** `./Start-Portal.ps1` (ou `& .\\Start-Portal.ps1`).
+
+**Linux:** `bash start-portal.sh`.
+
+Os scripts preparam `.venv` com Python 3.11, instalam dependências e iniciam o serviço exclusivamente em `127.0.0.1:8080`. No Windows, o launcher `py -3.11` precisa estar disponível. Em ambos os sistemas, o instalador de pacotes precisa acessar o índice na primeira instalação; **a operação do portal depois disso é offline**.
+
+## Testes de usabilidade sem hardware
+
+1. Abra `http://127.0.0.1:8080`.
+2. Em **Explorar sem hardware**, escolha **Oscilações de tensão** e clique em **Abrir demonstração**.
+3. Confira indicadores, gráfico e eventos; clique em **SUBTENSAO** ou **SOBRETENSAO** e observe detalhe, amostras próximas e zoom.
+4. Troque para o cenário **Interrupções de energia**; confira que apenas eventos do detector AC são classificados como interrupções, enquanto timeout PZEM é uma falha distinta.
+5. Teste **Rede estável**; a ausência de eventos detectados não significa ausência de qualquer distúrbio.
+6. Baixe **PDF técnico**, **PDF cliente** e **CSV**. A diferenciação cliente/técnico existe **somente nesses PDFs**, não na navegação do portal.
+7. Execute o roteiro completo em [ROTEIRO_USABILIDADE_PORTAL_V011.md](../docs/validacao/ROTEIRO_USABILIDADE_PORTAL_V011.md).
+
+Os cenários incorporados no portal são 100% sintéticos, têm horário histórico fixo e são sinalizados visualmente e no PDF. Não servem como prova de comportamento da rede.
 
 ## Recursos incluídos
 
@@ -10,11 +34,13 @@
 - Estatísticas de tensão e frequência, análise inicial de eventos sustentados, eventos de detector AC, avisos e registros brutos.
 - Gráfico Plotly inteiramente local, sem CDN.
 - Relatórios PDF **executivo/cliente** e **técnico/profissional**; exportação CSV.
-- Simulador determinístico e testes unitários do parser e da análise.
+- Três cenários sintéticos carregados com um clique; filtros de eventos, zoom, detalhe e amostras próximas.
+- Simulador determinístico, testes unitários do parser e da análise e testes HTTP de importação/exportação.
+- Inicialização facilitada via scripts PowerShell e Bash, com verificação de Python 3.11.
 
 ## Requisitos
 
-Python 3.11+ (recomendado) e dependências em `portal/requirements.txt`.
+Python **3.11.x** (obrigatório para este MVP) e dependências em `portal/requirements.txt`.
 
 ### Windows PowerShell
 
@@ -25,7 +51,7 @@ py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r portal/requirements.txt
 python -m portal.tools.generate_demo
-python -m uvicorn portal.app:app --host 127.0.0.1 --port 8080
+python -m portal.run
 ```
 
 ### Linux
@@ -59,6 +85,9 @@ python -m unittest discover -s portal/tests -v
 - A interrupção só é declarada quando o log contém estado do detector AC isolado, cuja existência física ainda não foi validada.
 - PDF atual é um relatório inicial de indicadores/eventos, ainda sem gráficos impressos ou identidade completa; a versão técnica precisa de ampliação de evidências.
 - O arquivo `portal/static/mark.svg` é uma cópia do símbolo aprovado para servir o portal offline.
+- A análise atual não tem avaliação metrológica ou cálculo formal de cobertura com as normas de qualidade de energia.
+- O gráfico marca lacunas acima de 2,5 segundos como interrupções visuais, sem atribuir zero volt.
+- A rotina de GitHub Actions precisa ser conferida: não considerar CI aprovado enquanto os jobs não concluírem com êxito.
 
 ## Segurança
 
