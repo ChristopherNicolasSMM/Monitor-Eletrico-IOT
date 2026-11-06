@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#F2F5F7" id="theme-color"/>
+  <script>(function(){try{var p=localStorage.getItem("monitor-theme");var m=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.dataset.theme=(p==="light"||p==="dark"?p:(m?"dark":"light"));}catch(e){document.documentElement.dataset.theme="light";}})();</script>
   <title>Monitor Elétrico | Portal Técnico</title>
   <link rel="stylesheet" href="/static/style.css"/>
 </head>
@@ -21,7 +23,17 @@
         <a href="#auditoria">Auditoria</a>
         <a href="#relatorios">Relatórios</a>
       </nav>
-      <div class="foot">Offline · PZEM-004T<br/>Protótipo experimental v0.1</div>
+      <div class="sidebar-bottom">
+        <div class="theme-panel" role="group" aria-labelledby="theme-label">
+          <span class="theme-label" id="theme-label">Aparência</span>
+          <div class="theme-switch">
+            <button type="button" class="theme-choice" data-theme-choice="light" aria-pressed="false" title="Tema claro"><span aria-hidden="true">☀</span><span>Claro</span></button>
+            <button type="button" class="theme-choice" data-theme-choice="dark" aria-pressed="false" title="Tema escuro"><span aria-hidden="true">☾</span><span>Escuro</span></button>
+            <button type="button" class="theme-choice" data-theme-choice="system" aria-pressed="false" title="Seguir o sistema"><span aria-hidden="true">◉</span><span>Sistema</span></button>
+          </div>
+        </div>
+        <div class="foot">Offline · PZEM-004T<br/>Protótipo experimental v0.1</div>
+      </div>
     </aside>
     <main>
       <header class="top"><div><small>MONITORAMENTO / ANÁLISE</small><h1>Portal de análise elétrica</h1><p>Registros locais, indicadores e evidências de ocorrências.</p></div><span class="chip">Modo técnico</span></header>
