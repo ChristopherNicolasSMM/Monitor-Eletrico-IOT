@@ -36,7 +36,7 @@ function applyTheme(persist = false) {
   if (persist) {
     try { localStorage.setItem(THEME_KEY, themePreference); } catch (_) { /* Continue sem persistência. */ }
   }
-  if (currentAnalysis && typeof Plotly !== "undefined") {
+  if (currentAnalysis?.samples?.some(row => row.v !== null) && typeof Plotly !== "undefined") {
     const p=chartPalette();
     Plotly.relayout("voltage-chart",{
       paper_bgcolor:p.bg,plot_bgcolor:p.bg,"font.color":p.text,
