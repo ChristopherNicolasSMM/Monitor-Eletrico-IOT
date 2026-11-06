@@ -53,9 +53,18 @@ function drawGraph(analysis){
     return;
   }
   const first=data[0].timestamp,last=data[data.length-1].timestamp;
-  // Valores nulos mantidos para exibir lacunas observadas sem interpolar a interrupção.
+  // Inserir ponto nulo entre amostras afastadas para NÃO desenhar através de lacunas.
+  const timePoints=[],voltagePoints=[];
+  for(let i=0;i<data.length;i++){
+    if(i>0 && (data[i].session!==data[i-1].session ||
+        Date.parse(data[i].timestamp)-Date.parse(data[i-1].timestamp)>2500)){
+      timePoints.push(new Date((Date.parse(data[i].timestamp)+Date.parse(data[i-1].timestamp))/2).toISOString());
+      voltagePoints.push(null);
+    }
+    timePoints.push(data[i].timestamp);voltagePoints.push(data[i].v);
+  }
   const traces=[{
-    x:data.map(s=>s.timestamp),y:data.map(s=>s.v),name:"Tensão RMS",
+    x:timePoints,y:voltagePoints,name:"Tensão RMS",
     type:"scatter",mode:"lines",connectgaps:false,
     line:{color:"#1c9a94",width:2}
   },{
