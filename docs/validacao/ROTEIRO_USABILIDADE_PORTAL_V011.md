@@ -1,4 +1,4 @@
-# Roteiro de usabilidade do Portal Técnico — MVP 0.1.1
+# Roteiro de usabilidade do Portal Técnico — MVP 0.1.2
 
 **Estado:** roteiro preparado, **sem validação manual concluída**.  
 **Data:** 2026-11-06.  
@@ -38,6 +38,19 @@ Validar navegabilidade do portal técnico, coerência dos indicadores, importaç
 | UX-13 | Abrir em janela estreita/celular | Menu, controles e tabelas navegáveis, sem perder conteúdo | Não executado |
 | UX-14 | Reiniciar o servidor | Originais preservados no disco; sessão em memória perdida conforme limitação documentada | Não executado |
 | UX-15 | Desconectar internet após instalar dependências | Portal, gráficos e relatórios continuam funcionais | Não executado |
+
+## Testes dos temas
+
+- **UX-THEME-01:** selecionar **Escuro** e verificar todos os textos, controles, cartões e gráficos, inclusive valores N/D.
+- **UX-THEME-02:** selecionar **Claro** sem recarregar a página e conferir cores.
+- **UX-THEME-03:** recarregar com Escuro selecionado e verificar persistência.
+- **UX-THEME-04:** selecionar **Sistema** e alterar o tema do Windows, conferindo atualização automática.
+- **UX-THEME-05:** dar zoom no gráfico e trocar de tema; o zoom deve permanecer.
+- **UX-THEME-06:** navegar com Tab, Enter e Espaço no seletor e verificar foco.
+- **UX-THEME-07:** testar em monitor de baixa luminosidade e viewport reduzido.
+- **UX-THEME-08:** comparar PDF técnico/cliente antes e após alternância, garantindo mesmos resultados.
+
+Documentar screenshots **reais** de ambos os temas ao finalizar a execução, com versão do navegador e dados sintéticos marcados.
 
 ## Perguntas orientadas à experiência
 
