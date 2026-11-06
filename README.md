@@ -1,51 +1,112 @@
-# Monitor Elétrico IoT
+<p align="center">
+  <!-- Identidade visual definitiva em desenvolvimento. -->
+  <strong>MONITOR ELÉTRICO IoT</strong>
+</p>
 
-Registrador portátil de comportamento da rede elétrica, com aquisição pelo ESP32-S3, medição PZEM-004T V3.0 100 A, relógio DS3231, registros em microSD e análise posterior em portal web local.
+<h1 align="center">Monitor Elétrico IoT</h1>
+<p align="center"><strong>Registrador portátil de comportamento elétrico e análise de ocorrências</strong></p>
+<p align="center">
+  <img alt="Status: planejamento" src="https://img.shields.io/badge/status-planejamento-64748b">
+  <img alt="Documentação: v0.2" src="https://img.shields.io/badge/docs-v0.2-0f766e">
+  <img alt="Hardware: não validado" src="https://img.shields.io/badge/hardware-n%C3%A3o%20validado-b45309">
+  <img alt="Operação: offline" src="https://img.shields.io/badge/opera%C3%A7%C3%A3o-offline-1d4ed8">
+</p>
 
-> **Estado:** planejamento e documentação, versão 0.1 (2026-11-06). Ainda não há hardware validado nem firmware implementado.
+> **Projeto em definição, sem firmware ou portal operacional.** O nome é provisório e a identidade visual está em elaboração. Este README documenta o escopo e as decisões, não uma instalação pronta.
 
-## Objetivo
+## O problema
 
-Registrar durante pelo menos 7 dias variações sustentadas de tensão, corrente (quando instalada a sonda), potência, frequência, fator de potência e energia, além de falhas da alimentação. O dispositivo deve continuar registrando estados durante interrupções usando bateria, dentro de sua autonomia.
+Equipamentos sofrem falhas intermitentes na alimentação elétrica, mas uma medição pontual pode parecer normal quando o técnico chega. O projeto pretende registrar a evolução da rede durante sete dias, preservar evidências e facilitar a investigação do comportamento elétrico.
 
-O produto é um **registrador experimental de tendências e eventos**, não um analisador de qualidade de energia certificado. O PZEM-004T mede dentro de sua faixa especificada de 80–260 V AC e não garante detecção de afundamentos rápidos, transientes ou surtos.
+**Objetivo:** obter histórico local confiável e auditável de grandezas disponibilizadas pelo sensor e de eventos detectados. O sistema não pretende substituir instrumento certificado de qualidade de energia.
 
-## Decisões já tomadas
+## Como funciona
 
-- Controlador: ESP32-S3 N16R8, variante física a confirmar.
-- Medição principal: PZEM-004T V3.0 100 A com transformador de corrente externo.
-- Tempo: RTC DS3231 com bateria de retenção.
-- Armazenamento: microSD integrado, se a placa realmente possuir slot; senão, leitor SPI 3,3 V externo.
-- Backup: módulo UPS apropriado com célula 18650 recarregável, em vez de bateria alcalina de 9 V. Modelo exato ainda pendente.
-- Aquisição e armazenamento offline, sem dependência de Wi-Fi.
-- Log texto com **uma linha por registro**, delimitadores `|` e tipos de bloco. `000` abre sessão ao iniciar, `999` fecha somente no desligamento formal.
-- Portal de análise no computador: **Python + FastAPI**; interface web local; análise Pandas/NumPy; gráficos Plotly; exportação PDF e CSV.
+```mermaid
+flowchart LR
+  A["Rede elétrica"] --> B["PZEM-004T + detector AC isolado"]
+  B --> C["ESP32-S3"]
+  D["UPS + bateria 18650"] --> C
+  E["RTC DS3231"] --> C
+  C --> F["microSD: logs versionados"]
+  F --> G["Portal offline em Python"]
+  G --> H["Gráficos, diagnóstico e PDF"]
+```
 
-## Documentação
+O PZEM fornece tensão e frequência e, quando o transformador de corrente for instalado corretamente, corrente, potência, fator de potência e energia. O ESP32 grava linhas de texto com blocos tipados e timestamps, mantendo a operação pela bateria durante falhas de alimentação, dentro da autonomia validada. Ao final, o cartão é importado no computador para análise.
 
+## Principais capacidades planejadas
+
+| Área | Planejado |
+|---|---|
+| Medição | Tensão, frequência e grandezas de carga condicionadas à instalação do CT |
+| Continuidade | UPS com célula 18650 e RTC independente |
+| Dados | microSD, linhas auditáveis delimitadas por `|`, tipos `000` e `999` |
+| Ocorrências | Eventos de rede, falhas de sensor, reinicializações e lacunas |
+| Portal | Python + FastAPI, importação local, filtros, gráficos e relatórios |
+| Privacidade | Funcionamento offline, sem nuvem obrigatória |
+
+**Limite essencial:** o PZEM-004T V3.0, na versão considerada, tem faixa especificada de 80–260 V AC e não assegura captura de picos transitórios ou afundamentos de milissegundos. Timeout do sensor **não equivale** a falta de rede: a detecção deve ser independente e isolada.
+
+## Estado e próximos marcos
+
+| Etapa | Situação |
+|---|---|
+| Definição de objetivo e componentes-base | Decidida conceitualmente |
+| Especificação de protocolo e portal | Em elaboração |
+| Seleção exata de UPS, alimentação, gabinete e isolamento | Pendente |
+| Protótipo e validação elétrica | Não iniciado |
+| Firmware | Não iniciado |
+| Portal web e relatórios | Não iniciado |
+| Capturas de tela e manual ilustrado | Dependentes de software real |
+
+## Navegação
+
+### Para utilizar o equipamento
+
+- [Introdução e objetivo operacional](docs/manual/01-introducao.md)
+- [Primeiros passos e limites de segurança](docs/manual/02-primeiros-passos.md)
+- [Funcionalidades previstas](docs/manual/03-funcionalidades.md)
+- [Perguntas frequentes](docs/manual/04-perguntas-frequentes.md)
+
+### Para desenvolver ou revisar
+
+- [Índice técnico](docs/technical/README.md)
+- [Visão geral e diagrama de arquitetura](docs/technical/01-visao-geral.md)
 - [Requisitos e limites](docs/REQUISITOS.md)
 - [Hardware e lista de materiais](docs/HARDWARE.md)
-- [Protocolo de registros](docs/PROTOCOLO_LOG.md)
+- [Protocolo de logs](docs/PROTOCOLO_LOG.md)
 - [Portal de análise](docs/PORTAL.md)
-- [Decisões e pendências](docs/DECISOES.md)
+- [Decisões arquiteturais e pendências](docs/DECISOES.md)
+- [Padrão editorial](docs/PADRAO_DOCUMENTACAO.md)
+- [Identidade visual e futura marca](docs/IDENTIDADE_VISUAL.md)
 
-## Fluxo de uso
+### Planejamento
 
-1. Preparar dispositivo, identificar cliente/local, configurar data, tensão nominal e amostragem.
-2. Iniciar sessão de medição e instalar por profissional habilitado em conexão elétrica protegida.
-3. Capturar e gravar continuamente os resumos e eventos por 7 dias.
-4. Efetuar desligamento formal quando possível e retirar o microSD.
-5. Importar a sessão no portal local, conferir integridade, analisar e emitir relatório.
+- [Backlog e critérios de avanço](BACKLOG.md)
 
-## Segurança
+## Protocolo de registros
 
-**Não ligar módulos eletrônicos genéricos diretamente à instalação elétrica sem projeto e validação de isolamento, proteção e acondicionamento.** O circuito de medição, alimentação AC/DC, detector de rede e serial precisam de verificação técnica. Nunca conectar condutores da rede aos GPIOs. A bateria requer proteção e módulo UPS com power-path efetivo.
+Cada entrada é uma linha completa, com envelope versionado, sequenciamento, carimbo temporal e verificação de integridade. Exemplo esquemático:
 
-## Próximos marcos
+```text
+|100|1|MEI-001|SESSION-001|3|2026-11-06T17:48:02.000Z|1000|v_rms=107.21;freq_hz=59.9;ac_state=present|PENDING|
+```
 
-1. Validar variantes reais da ESP32-S3, PZEM, DS3231, leitor SD e UPS.
-2. Fechar topologia de instalação (tomada, quadro ou ambos) e isolamento.
-3. Prototipar logs e importador com dados sintéticos.
-4. Testar alimentação ininterrupta, relógio, integridade do SD e recuperação pós-queda.
-5. Calibrar e validar medições comparadas a instrumento de referência.
-6. Desenvolver portal e relatório técnico.
+O campo `PENDING` é apenas ilustração; a implementação deverá calcular a verificação real. [Consulte o protocolo](docs/PROTOCOLO_LOG.md) para tipos de blocos, incluindo `000` (abertura) e `999` (encerramento formal).
+
+## Instalação e execução
+
+**Ainda não existe aplicação executável.** Instruções de clone e instalação de dependências serão publicadas quando houver código verificável. Não apresentaremos comandos fictícios como se o produto estivesse pronto.
+
+O portal futuro deve operar em Windows e Linux, sem conexão com a internet, podendo ser distribuído como aplicativo portátil.
+
+## Segurança e uso responsável
+
+A medição em 127/220 V exige proteção, isolamento, projeto de gabinete e validação por profissional habilitado. O dispositivo **não deve ser instalado em clientes** antes dos ensaios de alimentação, isolamento, detecção de interrupção e calibração. Não conectar diretamente terminais da rede a GPIOs ou USB de desenvolvimento.
+
+Os relatórios deverão separar dados observados, cálculos, hipóteses e limitações. Não atribuir automaticamente a origem das perturbações à concessionária.
+
+## Autoria
+
+Concepção: Christopher Nicolas Santa Maria Mauricio. Política de licença ainda não definida; não pressupor licença open source pela visibilidade do repositório.
