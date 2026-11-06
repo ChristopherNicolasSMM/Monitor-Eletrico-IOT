@@ -1,6 +1,17 @@
-# Portal técnico | MVP 0.1.1
+# Portal técnico | MVP 0.1.2
 
 > **Implementação experimental** na branch `feature/portal-tecnico-mvp`. Não utilizar os resultados para laudo formal ou atribuição de responsabilidade elétrica. Portal **técnico apenas**; as duas versões (cliente e técnico) existem exclusivamente na exportação PDF.
+
+## Aparência do portal
+
+O portal oferece **Claro, Escuro e Sistema** no rodapé do menu lateral. O escuro é azul-grafite intermediário, com superfícies separadas para leitura prolongada, contraste de texto e gráficos adaptativos. A escolha é armazenada apenas no navegador (`localStorage`), sem alterar dados elétricos ou PDFs. Na opção **Sistema**, segue automaticamente o tema do sistema operacional.
+
+Ao mudar a aparência durante um zoom, o Plotly atualiza cores sem reiniciar a sessão nem refazer os indicadores. O código trabalha com tokens CSS semânticos para permitir manutenção e verificações de contraste.
+
+- [Guia técnico de temas e acessibilidade](../docs/technical/portal/06-temas-e-acessibilidade.md).
+- [Roteiro de usabilidade](../docs/validacao/ROTEIRO_USABILIDADE_PORTAL_V011.md) atualizado para testes de contraste e alternância.
+
+**Estado:** mudança implementada; testes visuais manuais em Windows/Chrome/Edge ainda pendentes.
 
 ## Compatibilidade e execução
 
