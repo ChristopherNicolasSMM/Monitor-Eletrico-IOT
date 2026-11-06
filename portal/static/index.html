@@ -34,6 +34,11 @@
           <input id="nominal" name="nominal" type="number" min="80" max="260" step="1" value="127" required/>
           <button id="import-btn" type="submit">Importar e analisar</button>
         </form>
+        <div class="demo-panel">
+          <div><strong>Explorar sem hardware</strong><p>Carregue uma campanha sintética para testar navegação, gráficos e relatórios. Não representa medições reais.</p></div>
+          <div class="demo-controls"><label class="label" for="demo-scenario">Cenário</label><select id="demo-scenario" aria-label="Escolha um cenário de demonstração"><option value="oscilacoes">Oscilações de tensão</option><option value="interrupcoes">Interrupções de energia</option><option value="normal">Rede estável</option></select><button id="load-demo" type="button">Abrir demonstração</button></div>
+        </div>
+        <p id="demo-warning" class="demo-warning" hidden>DEMONSTRAÇÃO: os registros e os eventos exibidos são fictícios.</p>
         <p id="message" role="status" aria-live="polite">Selecione uma ou mais sessões para iniciar. Há um gerador de dados fictícios na pasta <code>portal/tools/</code>.</p>
       </section>
       <section id="indicadores">
@@ -42,16 +47,18 @@
       </section>
       <section id="graficos" class="panel">
         <div class="sectionhead"><h2>Tensão ao longo do tempo</h2><span>Valores RMS recebidos</span></div>
+        <div class="chart-controls"><button id="reset-zoom" type="button" class="subtle">Restaurar zoom</button><span>Clique em uma ocorrência para ampliar o período correspondente.</span></div>
         <div id="voltage-chart" class="chart" aria-label="Gráfico temporal de tensão"></div>
         <p class="note">Lacunas não são interpoladas. Os resultados não substituem analisador certificado de qualidade de energia.</p>
       </section>
       <section id="ocorrencias" class="panel">
         <div class="sectionhead"><h2>Ocorrências</h2><span id="event-total">0 eventos</span></div>
+        <div class="event-controls"><label for="event-filter">Filtrar eventos</label><select id="event-filter"><option value="all">Todos os tipos</option></select></div>
         <div class="tablewrap"><table><thead><tr><th>Tipo</th><th>Início (UTC)</th><th>Fim (UTC)</th><th>Linha</th><th>Detalhes</th></tr></thead><tbody id="events"><tr><td colspan="5">Sem dados.</td></tr></tbody></table></div>
       </section>
       <section id="auditoria" class="panel">
         <div class="sectionhead"><h2>Integridade e registros</h2><span id="integrity">Aguardando importação</span></div>
-        <div id="issues"></div>
+        <div id="issues"></div><div id="event-detail" class="event-detail" hidden></div>
         <h3>Registros brutos interpretados (primeiros 100)</h3>
         <div class="tablewrap"><table><thead><tr><th>Linha</th><th>Tipo</th><th>Sequência</th><th>Data UTC</th><th>Payload</th></tr></thead><tbody id="records"><tr><td colspan="5">Sem dados.</td></tr></tbody></table></div>
       </section>
