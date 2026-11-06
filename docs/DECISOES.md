@@ -15,6 +15,11 @@ Atualizado em 2026-11-06. Os itens abaixo são decisões de arquitetura; não si
 | D009 | Detector AC independente do PZEM | Timeout PZEM não prova ausência de rede | Requisito técnico |
 | D010 | Documentação antes do código | Consolidar requisitos, segurança e protocolo | Aprovada |
 
+| D011 | Portal dividido em ingestão/validação, motor de análise e apresentação/relatórios | Isolar responsabilidades e permitir auditoria | Aprovada conceitualmente |
+| D012 | Visões Cliente e Técnico compartilham o mesmo resultado analítico | Consistência de números e evidências | Aprovada conceitualmente |
+| D013 | Preservar arquivo original com SHA-256 e versionar reprocessamentos | Integridade e rastreabilidade | Aprovada conceitualmente |
+| D014 | PDF executivo e PDF técnico derivados de um snapshot versionado | Comunicação adaptada sem resultados divergentes | Aprovada conceitualmente |
+
 ## Questões abertas
 
 - Modelo físico exato da ESP32-S3 e presença real de slot microSD.
@@ -27,6 +32,8 @@ Atualizado em 2026-11-06. Os itens abaixo são decisões de arquitetura; não si
 - Limiares e critérios técnicos de eventos por tensão nominal.
 - Política de armazenamento de metadados de cliente e privacidade no portal.
 - Selecionar motor PDF e empacotamento de instalação.
+- Decidir armazenamento/indexação local (arquivos vs SQLite), mantendo originais imutáveis.
+- Fechar indicadores oficiais do produto, regras de severidade, limiares e política de cobertura temporal.
 
 ## Processo de mudança
 
