@@ -1,6 +1,5 @@
 <p align="center">
-  <!-- Identidade visual definitiva em desenvolvimento. -->
-  <strong>MONITOR ELÉTRICO IoT</strong>
+  <img src="assets/brand/logo.svg" alt="Monitor Elétrico IoT - marca aprovada com nome provisório" width="600">
 </p>
 
 <h1 align="center">Monitor Elétrico IoT</h1>
@@ -12,7 +11,7 @@
   <img alt="Operação: offline" src="https://img.shields.io/badge/opera%C3%A7%C3%A3o-offline-1d4ed8">
 </p>
 
-> **Projeto em definição, sem firmware ou portal operacional.** O nome é provisório e a identidade visual está em elaboração. Este README documenta o escopo e as decisões, não uma instalação pronta.
+> **Projeto em definição, sem firmware ou portal operacional.** O nome é provisório; a identidade visual foi aprovada em 2026-11-06. Este README documenta o escopo e as decisões, não uma instalação pronta.
 
 ## O problema
 
@@ -78,8 +77,10 @@ O PZEM fornece tensão e frequência e, quando o transformador de corrente for i
 - [Protocolo de logs](docs/PROTOCOLO_LOG.md)
 - [Portal de análise](docs/PORTAL.md)
 - [Decisões arquiteturais e pendências](docs/DECISOES.md)
+- [Skill reutilizável de documentação](.github/skills/documentacao-profissional/SKILL.md)
 - [Padrão editorial](docs/PADRAO_DOCUMENTACAO.md)
-- [Identidade visual e futura marca](docs/IDENTIDADE_VISUAL.md)
+- [Caso de uso: importação e validação](docs/technical/05-casos-de-uso.md)
+- [Identidade visual aprovada e nome provisório](docs/IDENTIDADE_VISUAL.md)
 
 ### Planejamento
 
