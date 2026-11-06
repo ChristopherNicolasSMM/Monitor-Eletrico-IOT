@@ -56,7 +56,7 @@ O PZEM fornece tensão e frequência e, quando o transformador de corrente for i
 | Seleção exata de UPS, alimentação, gabinete e isolamento | Pendente |
 | Protótipo e validação elétrica | Não iniciado |
 | Firmware | Não iniciado |
-| Portal web e relatórios | MVP 0.1.1 na branch de desenvolvimento, validação manual pendente |
+| Portal web e relatórios | MVP 0.1.2 na branch de desenvolvimento, validação manual pendente |
 | Capturas de tela e manual ilustrado | Dependentes de software real |
 
 ## Experimentar o portal técnico (MVP experimental)
@@ -65,9 +65,10 @@ O PZEM fornece tensão e frequência e, quando o transformador de corrente for i
 
 No Windows, após clonar a branch `feature/portal-tecnico-mvp`, execute `& .\\Start-Portal.ps1`; no Linux, `bash start-portal.sh`. Abra `http://127.0.0.1:8080`. Os scripts preparam a instalação local e iniciam o serviço; a primeira instalação de dependências requer acesso ao índice de pacotes.
 
-O painel é **exclusivamente técnico**. As versões cliente e técnico existem apenas como **modelos PDF exportáveis**. Há três cenários sintéticos carregados sem hardware para explorar gráficos, eventos, filtros e auditoria.
+O painel oferece temas **Claro, Escuro e Sistema**, com preferência persistente. É **exclusivamente técnico**. As versões cliente e técnico existem apenas como **modelos PDF exportáveis**. Há três cenários sintéticos carregados sem hardware para explorar gráficos, eventos, filtros e auditoria.
 
 - [Manual de execução do MVP](portal/README.md)
+- [Temas visuais e acessibilidade](docs/technical/portal/06-temas-e-acessibilidade.md)
 - [Roteiro de testes de usabilidade](docs/validacao/ROTEIRO_USABILIDADE_PORTAL_V011.md)
 - [PR #1 (revisão e testes)](https://github.com/ChristopherNicolasSMM/Monitor-Eletrico-IOT/pull/1)
 
